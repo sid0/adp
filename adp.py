@@ -143,7 +143,9 @@ class PayCheckFetcher:
                 reverse=True
             )
 
-            to_download = {}
+            print ' > found {} checks in {}'.format(len(paychecks), year)
+
+            already_downloaded = 0
 
             for date_key, date_id in paychecks:
                 inputs = self._get_inputs(year_soup)
@@ -158,19 +160,16 @@ class PayCheckFetcher:
                     TODO: to harden the check, the filename should also contain
                     the check number...
                     """
+                    already_downloaded += 1
                     continue
 
                 check_soup = self._get_response(urllib.urlencode(inputs))
                 check_url = iPay.ROOT_URL + check_soup.iframe['src']
-                to_download[filename] = check_url
-
-            print ' > found {} checks in {}'.format(len(paychecks), year)
-            print '  > {} paychecks already downloaded'.format(
-                len(paychecks) - len(to_download.keys())
-            )
-
-            for filename, check_url in to_download.items():
                 self._download_file(check_url, filename)
+
+            print '  > {} paychecks already downloaded'.format(
+                already_downloaded
+            )
 
             soup = self._return_to_browse(year_soup)
 
